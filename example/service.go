@@ -18,8 +18,9 @@ import (
 	gwEtcd "github.com/hb-chen/gateway/registry/etcd"
 	"github.com/hb-go/grpc-contrib/registry"
 	_ "github.com/hb-go/grpc-contrib/registry/micro"
-	mregistry "github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/etcd"
+	mRegistry "github.com/micro/go-micro/v2/registry"
+	mEtcd "github.com/micro/go-micro/v2/registry/etcd"
+	mNet "github.com/micro/go-micro/v2/util/net"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
@@ -41,27 +42,27 @@ func init() {
 	}
 	grpcZap.ReplaceGrpcLoggerV2(grpcLogger)
 
-	mregistry.DefaultRegistry = etcd.NewRegistry()
+	mRegistry.DefaultRegistry = mEtcd.NewRegistry()
 }
 
 type exampleService struct {
 }
 
 func (*exampleService) Call(_ context.Context, req *proto.Request) (*proto.Response, error) {
-	grpclog.Infof("example call")
+	grpclog.Infof("example service request call")
 	if req.Name == "" {
 		return nil, status.Errorf(codes.InvalidArgument, `req.Name=""`)
 	}
-	return &proto.Response{Msg: "hello"}, nil
+	return &proto.Response{Msg: "Hello " + req.Name}, nil
 }
 
 func main() {
-	l, err := net.Listen("tcp", "[::1]:0")
+	l, err := mNet.Listen(":", func(addr string) (net.Listener, error) {
+		return net.Listen("tcp", addr)
+	})
 	if err != nil {
 		grpclog.Fatalf("failed to listen: %v", err)
 	}
-
-	grpclog.Infof("registry %v", registry.DefaultRegistry)
 
 	version := "v1"
 	// 服务注册
@@ -124,5 +125,4 @@ func main() {
 
 	close(exitCh)
 	wg.Wait()
-	grpclog.Infof("end")
 }

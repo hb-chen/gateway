@@ -5,11 +5,11 @@ import (
 	grpcZap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	gwRegistry "github.com/hb-chen/gateway/registry"
-	"github.com/hb-chen/gateway/registry/etcd"
+	gwEtcd "github.com/hb-chen/gateway/registry/etcd"
 	"github.com/hb-chen/gateway/router"
 	_ "github.com/hb-go/grpc-contrib/registry/micro" // gRPC 服务注册中心
-	mregistry "github.com/micro/go-micro/v2/registry"
-	metcd "github.com/micro/go-micro/v2/registry/etcd"
+	mRegistry "github.com/micro/go-micro/v2/registry"
+	mEtcd "github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -37,7 +37,7 @@ func setup(ctx *cli.Context) error {
 	addr := ctx.String("registry_address")
 	switch provider {
 	case "etcd":
-		mregistry.DefaultRegistry = metcd.NewRegistry(mregistry.Addrs(strings.Split(addr, ",")...))
+		mRegistry.DefaultRegistry = mEtcd.NewRegistry(mRegistry.Addrs(strings.Split(addr, ",")...))
 	default:
 		return fmt.Errorf("registry provider:%v unsupported", provider)
 	}
@@ -59,7 +59,7 @@ func main() {
 		&cli.StringFlag{
 			Name:  "registry",
 			Value: "etcd",
-			Usage: "micro registry provider, etcd or consul",
+			Usage: "micro registry provider, etcd",
 		},
 		&cli.StringFlag{
 			Name:  "registry_address",
@@ -68,8 +68,8 @@ func main() {
 	)
 
 	app := &cli.App{
-		Name:        "account",
-		Description: "account service",
+		Name:        "gateway",
+		Description: "gRPC gateway",
 		Flags:       flags,
 		Before: func(ctx *cli.Context) error {
 			return setup(ctx)
@@ -77,7 +77,8 @@ func main() {
 		Action: func(ctx *cli.Context) error {
 			serveAddr := ctx.String("serve_addr")
 			registryAddr := ctx.String("registry_address")
-			reg := etcd.NewRegistry(gwRegistry.Addrs(strings.Split(registryAddr, ",")...))
+
+			reg := gwEtcd.NewRegistry(gwRegistry.Addrs(strings.Split(registryAddr, ",")...))
 			mux := runtime.NewServeMuxDynamic()
 			r := router.NewRouter(router.WithMux(mux), router.WithRegistry(reg))
 			defer r.Close()
