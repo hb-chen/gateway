@@ -12,8 +12,8 @@ $ go run gateway.go
 $ go run service.go
 ```
 
-http://localhost:8080/v1/example/call
-http://localhost:8080/v1/example/call/hbchen
+- http://localhost:8080/v1/example/call
+- http://localhost:8080/v1/example/call/hbchen
     
 ## Proto 工具
 

@@ -12,6 +12,7 @@ require (
 	github.com/hb-go/grpc-contrib v0.0.0-20200429050913-3e94c480880b
 	github.com/micro/go-micro/v2 v2.4.0
 	github.com/mitchellh/hashstructure v1.0.0
+	github.com/urfave/cli/v2 v2.2.0 // indirect
 	go.uber.org/zap v1.15.0
 	google.golang.org/grpc v1.26.0
 )

@@ -78,7 +78,7 @@ func (r *registryRouter) refresh() {
 			}
 			service, err := r.rc.GetService(s.Name)
 			if err != nil {
-				grpclog.Error("unable to get service: %v", err)
+				grpclog.Error("unable to get service: %v error: %v", s.Name, err)
 				continue
 			}
 			r.store(service)
@@ -95,12 +95,12 @@ func (r *registryRouter) refresh() {
 
 // process watch event
 func (r *registryRouter) process(res *registry.Result) {
+	grpclog.Infof("process action: %v, service: %v", res.Action, log.StringJSON(res.Service))
+
 	// skip these things
 	if res == nil || res.Service == nil || !strings.HasPrefix(res.Service.Name, r.opts.Namespace) {
 		return
 	}
-
-	grpclog.Infof("process action: %v, service: %v", res.Action, log.StringJSON(res.Service))
 
 	// TODO 同一版本出现冲突，如果被错误节点覆盖，注销错误节点后，需要等到 refresh 才能恢复正常节点
 
@@ -121,8 +121,7 @@ func (r *registryRouter) process(res *registry.Result) {
 		r.store(service)
 		return
 	} else if err != nil {
-		grpclog.Infof("service: %v", res.Service.Name)
-		grpclog.Errorf("unable to get service: %v", err)
+		grpclog.Errorf("unable to get service:%v error: %v", res.Service.Name, err)
 		return
 	}
 
@@ -333,8 +332,6 @@ func (r *registryRouter) handler(serviceName, method string, versions []string) 
 		}
 		defer closer.Close()
 
-		method := fmt.Sprintf("/%s/%s", serviceName, method)
-
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		rctx, err := runtime.AnnotateContext(ctx, r.opts.mux.ServeMux, req)
@@ -344,7 +341,7 @@ func (r *registryRouter) handler(serviceName, method string, versions []string) 
 		}
 
 		var metadata runtime.ServerMetadata
-
+		method := fmt.Sprintf("/%s/%s", serviceName, method)
 		err = cc.Invoke(rctx, method, rpcReq, resp,
 			grpc.CallContentSubtype(codec.CODEC_JSON),
 			grpc.Header(&metadata.HeaderMD),

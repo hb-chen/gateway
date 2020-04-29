@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	grpcZap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	_ "github.com/hb-chen/gateway/codec"
 	"github.com/hb-chen/gateway/example/proto"
@@ -39,7 +39,7 @@ func init() {
 	if err != nil {
 		grpclog.Fatal(err)
 	}
-	grpc_zap.ReplaceGrpcLoggerV2(grpcLogger)
+	grpcZap.ReplaceGrpcLoggerV2(grpcLogger)
 
 	mregistry.DefaultRegistry = etcd.NewRegistry()
 }
