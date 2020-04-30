@@ -36,21 +36,18 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 }
 
 // gRPC gateway marshaler
-// Marshal marshals "v" into byte sequence.
+// "github.com/grpc-ecosystem/grpc-gateway/runtime"
 func (m *Message) Marshal(v interface{}) ([]byte, error) {
 	grpclog.Infof("message marshal data: %v", m.data)
 	return m.data, nil
 }
 
-// Unmarshal unmarshals "data" into "v".
-// "v" must be a pointer value.
 func (m *Message) Unmarshal(data []byte, v interface{}) error {
 	grpclog.Infof("message unmarshal data: %v", data)
 	m.data = data
 	return nil
 }
 
-// NewDecoder returns a Decoder which reads byte sequence from "r".
 func (m *Message) NewDecoder(r io.Reader) runtime.Decoder {
 	return runtime.DecoderFunc(func(value interface{}) error {
 		buffer, err := ioutil.ReadAll(r)
@@ -62,7 +59,6 @@ func (m *Message) NewDecoder(r io.Reader) runtime.Decoder {
 	})
 }
 
-// NewEncoder returns an Encoder which writes bytes sequence into "w".
 func (m *Message) NewEncoder(w io.Writer) runtime.Encoder {
 	return runtime.EncoderFunc(func(value interface{}) error {
 		buffer, err := m.Marshal(value)
@@ -79,7 +75,6 @@ func (m *Message) NewEncoder(w io.Writer) runtime.Encoder {
 	})
 }
 
-// ContentType returns the Content-Type which this marshaler is responsible for.
 func (m *Message) ContentType() string {
 	return "application/json"
 }

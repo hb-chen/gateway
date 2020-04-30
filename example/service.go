@@ -53,7 +53,7 @@ func (*exampleService) Call(_ context.Context, req *proto.Request) (*proto.Respo
 	if req.Name == "" {
 		return nil, status.Errorf(codes.InvalidArgument, `req.Name=""`)
 	}
-	return &proto.Response{Msg: "Hello " + req.Name}, nil
+	return &proto.Response{Code: 0, Msg: "Hello " + req.Name}, nil
 }
 
 func main() {

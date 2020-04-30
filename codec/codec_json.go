@@ -11,6 +11,10 @@ import (
 
 var useNumber bool
 
+type JsonCodec struct {
+	jsonCodec
+}
+
 type jsonCodec struct {
 }
 
@@ -19,7 +23,7 @@ func UseNumber() {
 	useNumber = true
 }
 
-var jsonpbMarshaler = &jsonpb.Marshaler{}
+var jsonpbMarshaler = &jsonpb.Marshaler{EmitDefaults: true}
 var jsonpbUnmarshaler = &jsonpb.Unmarshaler{AllowUnknownFields: true}
 
 func (jsonCodec) Marshal(v interface{}) ([]byte, error) {

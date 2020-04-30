@@ -8,9 +8,10 @@ service ExampleService {
 }
 
 message Request {
-    string name = 1;
+    string name = 2;
 }
 
 message Response {
-    string msg = 1;
+    int64 code = 1;
+    string msg = 2;
 }
