@@ -11,4 +11,4 @@ require (
 	google.golang.org/grpc v1.26.0
 )
 
-replace github.com/hb-chen/gateway v0.0.0-20200429072353-1e55f50970c2 => /Users/Steven/Develop/Go/project/src/github.com/hb-chen/gateway
+replace github.com/hb-chen/gateway v0.0.0-20200429072353-1e55f50970c2 => ../../../gateway
