@@ -36,8 +36,6 @@ func init() {
 }
 
 func main() {
-	// TODO gw与micro proto生成代码冲突
-
 	// New Service
 	service := micro.NewService(
 		micro.Name("go.micro.srv.example"),
@@ -49,7 +47,7 @@ func main() {
 	addr := ""
 	version := "v1"
 	reg := gwEtcd.NewRegistry()
-	gwService := example.RegistryServiceExample
+	gwService := example.GatewayServiceExample
 	gwService.Version = version
 
 	service.Init(

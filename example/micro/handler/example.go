@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/micro/go-micro/v2/util/log"
 
@@ -13,6 +15,11 @@ type Example struct{}
 // Call is a single request handler called via client.Call or the generated client code
 func (e *Example) Call(ctx context.Context, req *example.Request, rsp *example.Response) error {
 	log.Infof("Received Example.Call request with name: ", req.Name)
+
+	if req.Name == "" {
+		return status.Errorf(codes.InvalidArgument, `req.Name=""`)
+	}
+
 	rsp.Msg = "Hello " + req.Name
 
 	return nil

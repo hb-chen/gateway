@@ -72,7 +72,7 @@ func main() {
 
 	// 网关注册
 	reg := gwEtcd.NewRegistry()
-	service := proto.RegistryServiceExampleService
+	service := proto.GatewayServiceExampleService
 	service.Version = version
 	service.Nodes = []*gwRegistry.Node{
 		{
