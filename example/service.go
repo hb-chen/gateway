@@ -63,8 +63,8 @@ func main() {
 
 	version := "v1"
 
-	// 网关注册
-	service := proto.GatewayServiceExampleService
+	// 服务注册
+	service := proto.GatewayServiceExample
 	service.Version = version
 	service.Nodes = []*registry.Node{
 		{
@@ -84,7 +84,7 @@ func main() {
 		),
 	)
 
-	proto.RegisterExampleServiceServer(s, &exampleService{})
+	proto.RegisterExampleServer(s, &exampleService{})
 
 	// Register reflection service on gRPC server.
 	reflection.Register(s)

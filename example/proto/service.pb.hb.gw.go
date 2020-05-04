@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	route_ExampleService_Call_0 = registry.Binding{
+	route_Example_Call_0 = registry.Binding{
 		Method: "POST",
 		PathTmpl: &httprule.Template{
 			Version: 1,
@@ -25,7 +25,7 @@ var (
 		AssumeColonVerb: true,
 	}
 
-	route_ExampleService_Call_1 = registry.Binding{
+	route_Example_Call_1 = registry.Binding{
 		Method: "GET",
 		PathTmpl: &httprule.Template{
 			Version: 1,
@@ -37,14 +37,14 @@ var (
 	}
 )
 
-var GatewayServiceExampleService = registry.Service{
-	Name: _ExampleService_serviceDesc.ServiceName,
+var GatewayServiceExample = registry.Service{
+	Name: _Example_serviceDesc.ServiceName,
 	Methods: []*registry.Method{
 		&registry.Method{
 			Name: "Call",
 			Bindings: []*registry.Binding{
-				&route_ExampleService_Call_0,
-				&route_ExampleService_Call_1,
+				&route_Example_Call_0,
+				&route_Example_Call_1,
 			},
 		},
 	},

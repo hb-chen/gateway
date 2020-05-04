@@ -46,6 +46,7 @@ $ go install github.com/hb-chen/gateway/protoc-gen-hb-grpc-gateway
 protoc --proto_path=.:$GOPATH/src \
 --go_out=plugins=grpc:. \
 --hb-grpc-gateway_out=logtostderr=true,grpc_api_configuration=example/proto/gateway.yaml:. \
+--hb-grpc_out=plugins=desc+registry:. \
 example/proto/service.proto
 ```
 
