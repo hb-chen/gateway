@@ -221,15 +221,15 @@ import (
 var (
 	{{range $m := $svc.Methods}}
 	{{range $b := $m.Bindings}}
-	route_{{$svc.GetName}}_{{$m.GetName}}_{{$b.Index}} = registry.Route{
+	route_{{$svc.GetName}}_{{$m.GetName}}_{{$b.Index}} = registry.Binding{
 		Method: {{$b.HTTPMethod | printf "%q"}}, 
-		Pattern: &registry.Pattern{
+		PathTmpl: &httprule.Template{
 			Version: {{$b.PathTmpl.Version}},
-			Ops: {{$b.PathTmpl.OpCodes | printf "%#v"}}, 
+			OpCodes: {{$b.PathTmpl.OpCodes | printf "%#v"}}, 
 			Pool: {{$b.PathTmpl.Pool | printf "%#v"}}, 
-			Verb: {{$b.PathTmpl.Verb | printf "%q"}}, 
-			AssumeColonVerb: {{$.AssumeColonVerb}},
+			Verb: {{$b.PathTmpl.Verb | printf "%q"}}, 	
 		},
+		AssumeColonVerb: {{$.AssumeColonVerb}},
 	}
 	{{end}}
 	{{end}}
@@ -241,7 +241,7 @@ var GatewayService{{$svc.GetName}} = registry.Service{
 	{{- range $m := $svc.Methods}}
 		&registry.Method{
 			Name: {{$m.GetName | printf "%q"}},
-			Routes: []*registry.Route{
+			Bindings: []*registry.Binding{
 				{{- range $b := $m.Bindings}}
 				&route_{{$svc.GetName}}_{{$m.GetName}}_{{$b.Index}},
 				{{- end}}

@@ -8,7 +8,6 @@ proto:
 	--micro_out=. \
     --go_out=plugins=grpc:. \
     --hb-grpc-gateway_out=logtostderr=true,grpc_api_configuration=proto/example/gateway.yaml:. \
-    --hb-grpc_out=plugins=registry:. \
     proto/example/example.proto
 
 .PHONY: build

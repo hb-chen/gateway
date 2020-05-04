@@ -14,11 +14,10 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/utilities"
 	"github.com/hb-chen/gateway/codec"
 	"github.com/hb-chen/gateway/proto"
-	"github.com/hb-chen/gateway/registry"
-	"github.com/hb-chen/gateway/registry/cache"
 	"github.com/hb-go/grpc-contrib/client"
 	"github.com/hb-go/grpc-contrib/log"
-	rpcRegistry "github.com/hb-go/grpc-contrib/registry"
+	"github.com/hb-go/grpc-contrib/registry"
+	"github.com/hb-go/grpc-contrib/registry/cache"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 )
@@ -140,16 +139,16 @@ func (r *registryRouter) store(services []*registry.Service) {
 	for _, service := range services {
 		// 路由转换，同一路由限定同一服务+方法，可以多版本
 		for _, m := range service.Methods {
-			for _, route := range m.Routes {
+			for _, binding := range m.Bindings {
 				pattern := runtime.MustPattern(runtime.NewPattern(
-					route.Pattern.Version,
-					route.Pattern.Ops,
-					route.Pattern.Pool,
-					route.Pattern.Verb,
-					runtime.AssumeColonVerbOpt(route.Pattern.AssumeColonVerb),
+					binding.PathTmpl.Version,
+					binding.PathTmpl.OpCodes,
+					binding.PathTmpl.Pool,
+					binding.PathTmpl.Verb,
+					runtime.AssumeColonVerbOpt(binding.AssumeColonVerb),
 				))
 
-				k := fmt.Sprintf("%s:%s", route.Method, pattern.String())
+				k := fmt.Sprintf("%s:%s", binding.Method, pattern.String())
 				if r, ok := routes[k]; ok {
 					if r.serviceName != service.Name || r.methodName != m.Name {
 						grpclog.Warningf("route have different service or method")
@@ -158,7 +157,7 @@ func (r *registryRouter) store(services []*registry.Service) {
 					r.serviceVersion = append(r.serviceVersion, service.Version)
 				} else {
 					r := &Route{
-						method:         route.Method,
+						method:         binding.Method,
 						pattern:        pattern,
 						serviceName:    service.Name,
 						methodName:     m.Name,
@@ -195,16 +194,16 @@ func (r *registryRouter) store(services []*registry.Service) {
 		// 注销已有服务被删除的路由
 		if svc, ok := r.eps[key]; ok {
 			for _, m := range svc.Methods {
-				for _, route := range m.Routes {
+				for _, binding := range m.Bindings {
 					pattern := runtime.MustPattern(runtime.NewPattern(
-						route.Pattern.Version,
-						route.Pattern.Ops,
-						route.Pattern.Pool,
-						route.Pattern.Verb,
-						runtime.AssumeColonVerbOpt(route.Pattern.AssumeColonVerb),
+						binding.PathTmpl.Version,
+						binding.PathTmpl.OpCodes,
+						binding.PathTmpl.Pool,
+						binding.PathTmpl.Verb,
+						runtime.AssumeColonVerbOpt(binding.AssumeColonVerb),
 					))
 
-					k := fmt.Sprintf("%s:%s", route.Method, pattern.String())
+					k := fmt.Sprintf("%s:%s", binding.Method, pattern.String())
 					// 新注册路由中不存在，则需要注销
 					if _, ok := routes[k]; !ok {
 						// 验证路由是不是由当前 service 注册的
@@ -212,7 +211,7 @@ func (r *registryRouter) store(services []*registry.Service) {
 							continue
 						}
 
-						r.opts.mux.HandlerDeregister(route.Method, pattern)
+						r.opts.mux.HandlerDeregister(binding.Method, pattern)
 					}
 				}
 			}
@@ -321,10 +320,10 @@ func (r *registryRouter) handler(serviceName, method string, versions []string) 
 		rpcReq := proto.NewMessage(data)
 		grpclog.Infof("req: %+v", rpcReq)
 
-		desc := grpc.ServiceDesc{ServiceName: serviceName}
+		s := registry.Service{Name: serviceName}
 		cc, closer, err := client.Client(
-			&desc,
-			client.WithRegistryOptions(rpcRegistry.WithVersion(versions...)),
+			&s,
+			client.WithRegistryOptions(registry.Versions(versions...)),
 		)
 		if err != nil {
 			runtime.HTTPError(context.TODO(), r.opts.mux.ServeMux, marshaler, w, req, err)
@@ -393,5 +392,7 @@ func newRouter(opts ...Option) *registryRouter {
 
 // NewRouter returns the default router
 func NewRouter(opts ...Option) *registryRouter {
-	return newRouter(opts...)
+	r := newRouter(opts...)
+	registry.RegisterBuilder(r.opts.Registry)
+	return r
 }

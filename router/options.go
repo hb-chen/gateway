@@ -2,8 +2,8 @@ package router
 
 import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/hb-chen/gateway/registry"
-	"github.com/hb-chen/gateway/registry/etcd"
+	"github.com/hb-go/grpc-contrib/registry"
+	"github.com/hb-go/grpc-contrib/registry/etcd"
 )
 
 type Options struct {

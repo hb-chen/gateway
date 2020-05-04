@@ -9,30 +9,31 @@ It translates gRPC into RESTful JSON APIs.
 package proto
 
 import (
-	"github.com/hb-chen/gateway/registry"
+	"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway/httprule"
+	"github.com/hb-go/grpc-contrib/registry"
 )
 
 var (
-	route_ExampleService_Call_0 = registry.Route{
+	route_ExampleService_Call_0 = registry.Binding{
 		Method: "POST",
-		Pattern: &registry.Pattern{
-			Version:         1,
-			Ops:             []int{2, 0, 2, 1, 2, 2},
-			Pool:            []string{"v1", "example", "call"},
-			Verb:            "",
-			AssumeColonVerb: true,
+		PathTmpl: &httprule.Template{
+			Version: 1,
+			OpCodes: []int{2, 0, 2, 1, 2, 2},
+			Pool:    []string{"v1", "example", "call"},
+			Verb:    "",
 		},
+		AssumeColonVerb: true,
 	}
 
-	route_ExampleService_Call_1 = registry.Route{
+	route_ExampleService_Call_1 = registry.Binding{
 		Method: "GET",
-		Pattern: &registry.Pattern{
-			Version:         1,
-			Ops:             []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3},
-			Pool:            []string{"v1", "example", "call", "name"},
-			Verb:            "",
-			AssumeColonVerb: true,
+		PathTmpl: &httprule.Template{
+			Version: 1,
+			OpCodes: []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3},
+			Pool:    []string{"v1", "example", "call", "name"},
+			Verb:    "",
 		},
+		AssumeColonVerb: true,
 	}
 )
 
@@ -41,7 +42,7 @@ var GatewayServiceExampleService = registry.Service{
 	Methods: []*registry.Method{
 		&registry.Method{
 			Name: "Call",
-			Routes: []*registry.Route{
+			Bindings: []*registry.Binding{
 				&route_ExampleService_Call_0,
 				&route_ExampleService_Call_1,
 			},

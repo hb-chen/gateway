@@ -2,24 +2,21 @@ package main
 
 import (
 	"context"
+	"github.com/google/uuid"
+	"github.com/hb-go/grpc-contrib/registry/cache"
 	"net"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 
-	"github.com/google/uuid"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpcZap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	_ "github.com/hb-chen/gateway/codec"
 	"github.com/hb-chen/gateway/example/proto"
-	gwRegistry "github.com/hb-chen/gateway/registry"
-	gwEtcd "github.com/hb-chen/gateway/registry/etcd"
 	"github.com/hb-go/grpc-contrib/registry"
-	_ "github.com/hb-go/grpc-contrib/registry/micro"
-	mRegistry "github.com/micro/go-micro/v2/registry"
-	mEtcd "github.com/micro/go-micro/v2/registry/etcd"
+	"github.com/hb-go/grpc-contrib/registry/etcd"
 	mNet "github.com/micro/go-micro/v2/util/net"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -42,7 +39,7 @@ func init() {
 	}
 	grpcZap.ReplaceGrpcLoggerV2(grpcLogger)
 
-	mRegistry.DefaultRegistry = mEtcd.NewRegistry()
+	registry.DefaultRegistry = cache.New(etcd.NewRegistry())
 }
 
 type exampleService struct {
@@ -65,16 +62,11 @@ func main() {
 	}
 
 	version := "v1"
-	// 服务注册
-	if err := proto.RegisterExampleService(registry.WithAddr(l.Addr().String()), registry.WithVersion(version)); err != nil {
-		grpclog.Fatal(err)
-	}
 
 	// 网关注册
-	reg := gwEtcd.NewRegistry()
 	service := proto.GatewayServiceExampleService
 	service.Version = version
-	service.Nodes = []*gwRegistry.Node{
+	service.Nodes = []*registry.Node{
 		{
 			Id:       service.Name + "-" + uuid.New().String(),
 			Address:  l.Addr().String(),
@@ -82,10 +74,9 @@ func main() {
 		},
 	}
 
-	if err := reg.Register(&service); err != nil {
+	if err := registry.Register(&service); err != nil {
 		grpclog.Fatal(err)
 	}
-	defer reg.Deregister(&service)
 
 	s := grpc.NewServer(
 		grpc_middleware.WithStreamServerChain(
@@ -112,7 +103,9 @@ func main() {
 			grpclog.Infof("receive signal: %v", sig.String())
 			s.GracefulStop()
 		}
-		registry.Deregister(nil)
+
+		defer registry.Deregister(&service)
+
 		wg.Done()
 	}(wg)
 

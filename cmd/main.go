@@ -4,19 +4,16 @@ import (
 	"fmt"
 	grpcZap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	gwRegistry "github.com/hb-chen/gateway/registry"
-	gwEtcd "github.com/hb-chen/gateway/registry/etcd"
 	"github.com/hb-chen/gateway/router"
-	_ "github.com/hb-go/grpc-contrib/registry/micro" // gRPC 服务注册中心
-	mRegistry "github.com/micro/go-micro/v2/registry"
-	mEtcd "github.com/micro/go-micro/v2/registry/etcd"
+	"github.com/hb-go/grpc-contrib/registry"
+	"github.com/hb-go/grpc-contrib/registry/cache"
+	"github.com/hb-go/grpc-contrib/registry/etcd"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc/grpclog"
 	"net/http"
 	"os"
-	"strings"
 )
 
 func init() {
@@ -30,14 +27,15 @@ func init() {
 		grpclog.Fatal(err)
 	}
 	grpcZap.ReplaceGrpcLoggerV2(logger)
+
+	registry.DefaultRegistry = cache.New(etcd.NewRegistry())
 }
 
 func setup(ctx *cli.Context) error {
 	provider := ctx.String("registry")
-	addr := ctx.String("registry_address")
+	// addr := ctx.String("registry_address")
 	switch provider {
 	case "etcd":
-		mRegistry.DefaultRegistry = mEtcd.NewRegistry(mRegistry.Addrs(strings.Split(addr, ",")...))
 	default:
 		return fmt.Errorf("registry provider:%v unsupported", provider)
 	}
@@ -76,11 +74,10 @@ func main() {
 		},
 		Action: func(ctx *cli.Context) error {
 			serveAddr := ctx.String("serve_addr")
-			registryAddr := ctx.String("registry_address")
+			// registryAddr := ctx.String("registry_address")
 
-			reg := gwEtcd.NewRegistry(gwRegistry.Addrs(strings.Split(registryAddr, ",")...))
 			mux := runtime.NewServeMuxDynamic()
-			r := router.NewRouter(router.WithMux(mux), router.WithRegistry(reg))
+			r := router.NewRouter(router.WithMux(mux), router.WithRegistry(registry.DefaultRegistry))
 			defer r.Close()
 
 			return http.ListenAndServe(serveAddr, mux)

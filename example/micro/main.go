@@ -3,6 +3,8 @@ package main
 import (
 	grpcZap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/hb-chen/gateway/codec"
+	"github.com/hb-go/grpc-contrib/registry/cache"
+	"github.com/hb-go/grpc-contrib/registry/etcd"
 	"github.com/micro/go-micro/v2/server/grpc"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -10,10 +12,7 @@ import (
 	"github.com/google/uuid"
 	_ "github.com/hb-chen/gateway/codec"
 	"github.com/hb-chen/gateway/example/micro/handler"
-	gwRegistry "github.com/hb-chen/gateway/registry"
-	gwEtcd "github.com/hb-chen/gateway/registry/etcd"
 	"github.com/hb-go/grpc-contrib/registry"
-	_ "github.com/hb-go/grpc-contrib/registry/micro"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/registry/memory"
 	"github.com/micro/go-micro/v2/util/log"
@@ -33,6 +32,8 @@ func init() {
 		grpclog.Fatal(err)
 	}
 	grpcZap.ReplaceGrpcLoggerV2(grpcLogger)
+
+	registry.DefaultRegistry = cache.New(etcd.NewRegistry())
 }
 
 func main() {
@@ -46,38 +47,30 @@ func main() {
 	// Initialise service
 	addr := ""
 	version := "v1"
-	reg := gwEtcd.NewRegistry()
-	gwService := example.GatewayServiceExample
-	gwService.Version = version
+	exampleService := example.GatewayServiceExample
+	exampleService.Version = version
 
 	service.Init(
 		micro.AfterStart(func() error {
 			addr = service.Server().Options().Address
 
 			// 服务注册
-			if err := example.RegisterExample(registry.WithAddr(addr), registry.WithVersion(version)); err != nil {
-				return err
-			}
-
-			// 网关注册
-			gwService.Nodes = []*gwRegistry.Node{
+			exampleService.Nodes = []*registry.Node{
 				{
-					Id:       gwService.Name + "-" + uuid.New().String(),
+					Id:       exampleService.Name + "-" + uuid.New().String(),
 					Address:  addr,
 					Metadata: nil,
 				},
 			}
-			if err := reg.Register(&gwService); err != nil {
+			if err := registry.Register(&exampleService); err != nil {
 				return err
 			}
 
 			return nil
 		}),
 		micro.AfterStop(func() error {
-			example.DeregisterExample(registry.WithAddr(addr), registry.WithVersion(version))
-			if err := reg.Deregister(&gwService); err != nil {
-				return err
-			}
+			// 服务注销
+			registry.Deregister(&exampleService)
 
 			return nil
 		}),
