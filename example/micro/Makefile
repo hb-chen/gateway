@@ -4,7 +4,7 @@ GOPATH:=$(shell go env GOPATH)
 
 .PHONY: proto
 proto:
-	protoc --proto_path=.:$$GOPATH/src \
+	protoc -I$$GOPATH/src/github.com/googleapis/googleapis --proto_path=.:$$GOPATH/src \
 	--micro_out=. \
     --go_out=plugins=grpc:. \
     --hb-grpc-gateway_out=logtostderr=true,grpc_api_configuration=proto/example/gateway.yaml:. \

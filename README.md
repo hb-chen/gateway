@@ -5,19 +5,19 @@
 **网关**
 ```shell script
 $ cd cmd
-$ go run main.go
+$ go run main.go --grpc_registry=etcd --server_address=:8080
 ```
 
 **gRPC 服务**
 ```shell script
-$ cd example
-$ go run service.go
+$ cd example/grpc
+$ go run main.go --grpc_registry=etcd
 ```
 
 **go-micro 的 gRPC 服务**
 ```shell script
 $ cd example/micro
-$ go run main.go
+$ go run main.go --grpc_registry=etcd
 ```
 
 gRPC 服务支持：

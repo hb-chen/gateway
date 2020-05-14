@@ -1,13 +1,18 @@
 package main
 
 import (
+	"fmt"
 	grpcZap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/hb-chen/gateway/codec"
+	"github.com/hb-chen/gateway/example/util"
 	"github.com/hb-go/grpc-contrib/registry/cache"
+	"github.com/hb-go/grpc-contrib/registry/consul"
 	"github.com/hb-go/grpc-contrib/registry/etcd"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/server/grpc"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"strings"
 
 	"github.com/google/uuid"
 	_ "github.com/hb-chen/gateway/codec"
@@ -33,7 +38,21 @@ func init() {
 	}
 	grpcZap.ReplaceGrpcLoggerV2(grpcLogger)
 
-	registry.DefaultRegistry = cache.New(etcd.NewRegistry())
+}
+
+func setup(ctx *cli.Context) error {
+	provider := ctx.String("grpc_registry")
+	addr := ctx.String("grpc_registry_address")
+	grpclog.Infof("registry provider: %v", provider)
+	switch provider {
+	case "etcd":
+		registry.DefaultRegistry = cache.New(etcd.NewRegistry(registry.Addrs(strings.Split(addr, ",")...)))
+	case "consul":
+		registry.DefaultRegistry = cache.New(consul.NewRegistry(registry.Addrs(strings.Split(addr, ",")...)))
+	default:
+		return fmt.Errorf("registry provider:%v unsupported", provider)
+	}
+	return nil
 }
 
 func main() {
@@ -51,8 +70,26 @@ func main() {
 	exampleService.Version = version
 
 	service.Init(
+		micro.Flags(
+			&cli.StringFlag{
+				Name:  "grpc_registry",
+				Value: "etcd",
+				Usage: "micro registry provider, etcd",
+			},
+			&cli.StringFlag{
+				Name:  "grpc_registry_address",
+				Usage: "micro registry address",
+			},
+		),
+		micro.Action(func(ctx *cli.Context) error {
+			return setup(ctx)
+		}),
 		micro.AfterStart(func() error {
 			addr = service.Server().Options().Address
+			addr, err := util.Address(addr)
+			if err != nil {
+				grpclog.Fatalf("address error: %v", err)
+			}
 
 			// 服务注册
 			exampleService.Nodes = []*registry.Node{

@@ -7,6 +7,7 @@ import (
 	"github.com/hb-chen/gateway/router"
 	"github.com/hb-go/grpc-contrib/registry"
 	"github.com/hb-go/grpc-contrib/registry/cache"
+	"github.com/hb-go/grpc-contrib/registry/consul"
 	"github.com/hb-go/grpc-contrib/registry/etcd"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
@@ -14,6 +15,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func init() {
@@ -27,15 +29,16 @@ func init() {
 		grpclog.Fatal(err)
 	}
 	grpcZap.ReplaceGrpcLoggerV2(logger)
-
-	registry.DefaultRegistry = cache.New(etcd.NewRegistry())
 }
 
 func setup(ctx *cli.Context) error {
-	provider := ctx.String("registry")
-	// addr := ctx.String("registry_address")
+	provider := ctx.String("grpc_registry")
+	addr := ctx.String("grpc_registry_address")
 	switch provider {
 	case "etcd":
+		registry.DefaultRegistry = cache.New(etcd.NewRegistry(registry.Addrs(strings.Split(addr, ",")...)))
+	case "consul":
+		registry.DefaultRegistry = cache.New(consul.NewRegistry(registry.Addrs(strings.Split(addr, ",")...)))
 	default:
 		return fmt.Errorf("registry provider:%v unsupported", provider)
 	}
@@ -46,21 +49,21 @@ func main() {
 	flags := make([]cli.Flag, 0)
 	flags = append(flags,
 		&cli.StringFlag{
-			Name:  "serve_addr",
+			Name:  "server_address",
 			Value: ":8080",
-			Usage: "serve address",
+			Usage: "server address",
 		},
 		&cli.StringFlag{
 			Name:  "service_version",
 			Usage: "service version",
 		},
 		&cli.StringFlag{
-			Name:  "registry",
+			Name:  "grpc_registry",
 			Value: "etcd",
 			Usage: "micro registry provider, etcd",
 		},
 		&cli.StringFlag{
-			Name:  "registry_address",
+			Name:  "grpc_registry_address",
 			Usage: "micro registry address",
 		},
 	)
@@ -73,8 +76,7 @@ func main() {
 			return setup(ctx)
 		},
 		Action: func(ctx *cli.Context) error {
-			serveAddr := ctx.String("serve_addr")
-			// registryAddr := ctx.String("registry_address")
+			serveAddr := ctx.String("server_address")
 
 			mux := runtime.NewServeMuxDynamic()
 			r := router.NewRouter(router.WithMux(mux), router.WithRegistry(registry.DefaultRegistry))

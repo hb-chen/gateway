@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway v1.14.4
-	github.com/hb-go/grpc-contrib v0.0.0-20200504062014-d5f5132289c5
+	github.com/hb-go/grpc-contrib v0.0.0-20200512120636-c769c8068138
 	github.com/micro/go-micro/v2 v2.4.0
 	github.com/urfave/cli/v2 v2.2.0
 	go.uber.org/zap v1.15.0
