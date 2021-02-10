@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/hb-chen/gateway/example/util"
 	"net"
 	"os"
 	"os/signal"
@@ -31,6 +30,7 @@ import (
 
 	_ "github.com/hb-chen/gateway/codec"
 	"github.com/hb-chen/gateway/example/proto"
+	"github.com/hb-chen/gateway/example/util"
 )
 
 func init() {

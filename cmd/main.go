@@ -2,6 +2,10 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"os"
+	"strings"
+
 	grpcZap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/hb-chen/gateway/router"
@@ -13,9 +17,6 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc/grpclog"
-	"net/http"
-	"os"
-	"strings"
 )
 
 func init() {
@@ -35,6 +36,8 @@ func setup(ctx *cli.Context) error {
 	provider := ctx.String("grpc_registry")
 	addr := ctx.String("grpc_registry_address")
 	switch provider {
+	case "mock":
+		grpclog.Warningf("registry mock")
 	case "etcd":
 		registry.DefaultRegistry = cache.New(etcd.NewRegistry(registry.Addrs(strings.Split(addr, ",")...)))
 	case "consul":
@@ -49,22 +52,28 @@ func main() {
 	flags := make([]cli.Flag, 0)
 	flags = append(flags,
 		&cli.StringFlag{
-			Name:  "server_address",
-			Value: ":8080",
-			Usage: "server address",
+			Name:  "name",
+			Value: "gRPC gateway",
+			Usage: "gateway name",
 		},
 		&cli.StringFlag{
-			Name:  "service_version",
-			Usage: "service version",
+			Name:  "version",
+			Value: "v1.0.0",
+			Usage: "gateway version",
+		},
+		&cli.StringFlag{
+			Name:  "address",
+			Value: ":8080",
+			Usage: "serve address",
 		},
 		&cli.StringFlag{
 			Name:  "grpc_registry",
-			Value: "etcd",
-			Usage: "micro registry provider, etcd",
+			Value: "mock",
+			Usage: "registry provider, etcd or consul",
 		},
 		&cli.StringFlag{
 			Name:  "grpc_registry_address",
-			Usage: "micro registry address",
+			Usage: "registry address",
 		},
 	)
 
@@ -76,13 +85,22 @@ func main() {
 			return setup(ctx)
 		},
 		Action: func(ctx *cli.Context) error {
-			serveAddr := ctx.String("server_address")
+			name := ctx.String("name")
+			version := ctx.String("version")
+			addr := ctx.String("address")
 
 			mux := runtime.NewServeMuxDynamic()
+
+			pat, _ := runtime.NewPattern(1, []int{1, 0}, []string{""}, "")
+			mux.Handle("GET", pat, func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte(`{"name":"` + name + `","version": "` + version + `"}`))
+			})
+
 			r := router.NewRouter(router.WithMux(mux), router.WithRegistry(registry.DefaultRegistry))
 			defer r.Close()
 
-			return http.ListenAndServe(serveAddr, mux)
+			return http.ListenAndServe(addr, mux)
 		},
 	}
 

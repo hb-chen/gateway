@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"strings"
+
 	grpcZap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/hb-chen/gateway/codec"
 	"github.com/hb-chen/gateway/example/util"
@@ -12,7 +14,6 @@ import (
 	"github.com/micro/go-micro/v2/server/grpc"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"strings"
 
 	"github.com/google/uuid"
 	_ "github.com/hb-chen/gateway/codec"
