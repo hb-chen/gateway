@@ -59,7 +59,7 @@ func (r *registryRouter) refresh() {
 	var attempts int
 
 	for {
-		services, err := r.opts.Registry.ListServices()
+		services, err := r.opts.registry.ListServices()
 		if err != nil {
 			attempts++
 			grpclog.Errorf("unable to list services: %v", err)
@@ -72,7 +72,7 @@ func (r *registryRouter) refresh() {
 		// for each service, get service and store endpoints
 		for _, s := range services {
 			// only get services for this namespace
-			if !strings.HasPrefix(s.Name, r.opts.Namespace) {
+			if !strings.HasPrefix(s.Name, r.opts.namespace) {
 				continue
 			}
 			service, err := r.rc.GetService(s.Name)
@@ -97,7 +97,7 @@ func (r *registryRouter) process(res *registry.Result) {
 	grpclog.Infof("process action: %v, service: %v", res.Action, log.StringJSON(res.Service))
 
 	// skip these things
-	if res == nil || res.Service == nil || !strings.HasPrefix(res.Service.Name, r.opts.Namespace) {
+	if res == nil || res.Service == nil || !strings.HasPrefix(res.Service.Name, r.opts.namespace) {
 		return
 	}
 
@@ -231,7 +231,7 @@ func (r *registryRouter) watch() {
 		}
 
 		// watch for changes
-		w, err := r.opts.Registry.Watch()
+		w, err := r.opts.registry.Watch()
 		if err != nil {
 			attempts++
 			grpclog.Errorf("error watching endpoints: %v", err)
@@ -381,7 +381,7 @@ func newRouter(opts ...Option) *registryRouter {
 	r := &registryRouter{
 		exit:   make(chan bool),
 		opts:   options,
-		rc:     cache.New(options.Registry),
+		rc:     cache.New(options.registry),
 		eps:    make(map[string]*registry.Service),
 		routes: make(map[string]*Route),
 	}
@@ -393,6 +393,6 @@ func newRouter(opts ...Option) *registryRouter {
 // NewRouter returns the default router
 func NewRouter(opts ...Option) *registryRouter {
 	r := newRouter(opts...)
-	registry.RegisterBuilder(r.opts.Registry)
+	registry.RegisterBuilder(r.opts.registry)
 	return r
 }

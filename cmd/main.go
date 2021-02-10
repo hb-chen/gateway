@@ -25,7 +25,7 @@ func init() {
 	zapConf := zap.NewDevelopmentConfig()
 	zapConf.EncoderConfig = zapEncoderConf
 	zapConf.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
-	logger, err := zapConf.Build(zap.AddCallerSkip(3))
+	logger, err := zapConf.Build(zap.AddCallerSkip(2))
 	if err != nil {
 		grpclog.Fatal(err)
 	}
