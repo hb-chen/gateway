@@ -1,5 +1,11 @@
 # Gateway
 
+## Helm install
+
+```
+helm install grpc-gateway ./helm --namespace grpc-gateway --no-hooks
+```
+
 ## Example
 
 **网关**
