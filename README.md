@@ -3,7 +3,7 @@
 ## Helm install
 
 ```
-helm install grpc-gateway ./helm --namespace grpc-gateway --no-hooks
+helm upgrade --install grpc-gateway ./helm --namespace grpc-gateway --no-hooks
 ```
 
 ## Example
