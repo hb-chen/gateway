@@ -10,16 +10,17 @@ import (
 	"time"
 
 	"github.com/bitly/go-simplejson"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/grpc-ecosystem/grpc-gateway/utilities"
-	"github.com/hb-chen/gateway/codec"
-	"github.com/hb-chen/gateway/proto"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
 	"github.com/hb-go/grpc-contrib/client"
 	"github.com/hb-go/grpc-contrib/log"
 	"github.com/hb-go/grpc-contrib/registry"
 	"github.com/hb-go/grpc-contrib/registry/cache"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
+
+	"github.com/hb-chen/gateway/v2/codec"
+	"github.com/hb-chen/gateway/v2/proto"
 )
 
 var valuesKeyRegexp = regexp.MustCompile("^(.*)\\[(.*)\\]$")
@@ -145,7 +146,6 @@ func (r *registryRouter) store(services []*registry.Service) {
 					binding.PathTmpl.OpCodes,
 					binding.PathTmpl.Pool,
 					binding.PathTmpl.Verb,
-					runtime.AssumeColonVerbOpt(binding.AssumeColonVerb),
 				))
 
 				k := fmt.Sprintf("%s:%s", binding.Method, pattern.String())
@@ -200,7 +200,6 @@ func (r *registryRouter) store(services []*registry.Service) {
 						binding.PathTmpl.OpCodes,
 						binding.PathTmpl.Pool,
 						binding.PathTmpl.Verb,
-						runtime.AssumeColonVerbOpt(binding.AssumeColonVerb),
 					))
 
 					k := fmt.Sprintf("%s:%s", binding.Method, pattern.String())
@@ -296,7 +295,7 @@ func (r *registryRouter) handler(serviceName, method string, versions []string) 
 
 		// Query params
 		// 已有数据不覆盖
-		// 如果想要做到 grpc-gateway 那样根据 path 情况判断是否需要 query需要注册中心给出接口的 request 结构
+		// 如果想要做到 grpc-gateway 那样根据 path 情况判断是否需要 query，需要注册中心给出接口的 request 结构
 		if err := req.ParseForm(); err != nil {
 			runtime.HTTPError(context.TODO(), r.opts.mux.ServeMux, marshaler, w, req, err)
 			return
@@ -333,7 +332,7 @@ func (r *registryRouter) handler(serviceName, method string, versions []string) 
 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
-		rctx, err := runtime.AnnotateContext(ctx, r.opts.mux.ServeMux, req)
+		rctx, err := runtime.AnnotateContext(ctx, r.opts.mux.ServeMux, req, "")
 		if err != nil {
 			runtime.HTTPError(ctx, r.opts.mux.ServeMux, marshaler, w, req, err)
 			return

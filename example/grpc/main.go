@@ -18,7 +18,6 @@ import (
 	"github.com/hb-go/grpc-contrib/registry/cache"
 	"github.com/hb-go/grpc-contrib/registry/consul"
 	"github.com/hb-go/grpc-contrib/registry/etcd"
-	mNet "github.com/micro/go-micro/v2/util/net"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -28,9 +27,10 @@ import (
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 
-	_ "github.com/hb-chen/gateway/codec"
-	"github.com/hb-chen/gateway/example/proto"
-	"github.com/hb-chen/gateway/example/util"
+	_ "github.com/hb-chen/gateway/v2/codec"
+	"github.com/hb-chen/gateway/v2/example/proto"
+	"github.com/hb-chen/gateway/v2/pkg/util"
+	mNet "github.com/hb-chen/gateway/v2/pkg/util/net"
 )
 
 func init() {
@@ -78,11 +78,11 @@ func main() {
 		&cli.StringFlag{
 			Name:  "grpc_registry",
 			Value: "etcd",
-			Usage: "micro registry provider, etcd",
+			Usage: "registry provider, etcd or consul",
 		},
 		&cli.StringFlag{
 			Name:  "grpc_registry_address",
-			Usage: "micro registry address",
+			Usage: "registry address",
 		},
 	)
 

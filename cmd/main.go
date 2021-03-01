@@ -7,8 +7,7 @@ import (
 	"strings"
 
 	grpcZap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/hb-chen/gateway/router"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/hb-go/grpc-contrib/registry"
 	"github.com/hb-go/grpc-contrib/registry/cache"
 	"github.com/hb-go/grpc-contrib/registry/consul"
@@ -17,6 +16,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc/grpclog"
+
+	"github.com/hb-chen/gateway/v2/router"
 )
 
 func init() {

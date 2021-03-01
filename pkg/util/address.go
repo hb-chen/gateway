@@ -1,10 +1,11 @@
 package util
 
 import (
-	"github.com/micro/go-micro/v2/util/addr"
-	mNet "github.com/micro/go-micro/v2/util/net"
 	"net"
 	"strings"
+
+	"github.com/hb-chen/gateway/v2/pkg/util/addr"
+	mNet "github.com/hb-chen/gateway/v2/pkg/util/net"
 )
 
 func Address(address string) (string, error) {

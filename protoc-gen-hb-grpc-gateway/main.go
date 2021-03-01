@@ -19,7 +19,7 @@ import (
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 	"github.com/grpc-ecosystem/grpc-gateway/codegenerator"
 	"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway/descriptor"
-	"github.com/hb-chen/gateway/protoc-gen-hb-grpc-gateway/internal/gengateway"
+	"github.com/hb-chen/gateway/v2/protoc-gen-hb-grpc-gateway/internal/gengateway"
 )
 
 var (

@@ -28,7 +28,7 @@ $ go run main.go --grpc_registry=etcd
 
 gRPC 服务支持：
 - Codec
-    - `import _ "github.com/hb-chen/gateway/codec"`
+    - `import _ "github.com/hb-chen/gateway/v2/codec"`
     - go-micro 使用 gRPC server 的 Codec() option
         `grpc.Codec("application/grpc+"+jsonCodec.Name(), jsonCodec),`
 - 注册中心
@@ -45,7 +45,7 @@ gRPC 服务支持：
 
 ```shell script
 $ go install github.com/hb-go/grpc-contrib/protoc-gen-hb-grpc
-$ go install github.com/hb-chen/gateway/protoc-gen-hb-grpc-gateway 
+$ go install github.com/hb-chen/gateway/v2/protoc-gen-hb-grpc-gateway 
 ```
     
 ```shell script

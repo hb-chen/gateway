@@ -9,14 +9,13 @@ It translates gRPC into RESTful JSON APIs.
 package proto
 
 import (
-	"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway/httprule"
 	"github.com/hb-go/grpc-contrib/registry"
 )
 
 var (
 	route_Example_Call_0 = registry.Binding{
 		Method: "POST",
-		PathTmpl: &httprule.Template{
+		PathTmpl: &registry.PathTmpl{
 			Version: 1,
 			OpCodes: []int{2, 0, 2, 1, 2, 2},
 			Pool:    []string{"v1", "example", "call"},
@@ -27,7 +26,7 @@ var (
 
 	route_Example_Call_1 = registry.Binding{
 		Method: "GET",
-		PathTmpl: &httprule.Template{
+		PathTmpl: &registry.PathTmpl{
 			Version: 1,
 			OpCodes: []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3},
 			Pool:    []string{"v1", "example", "call", "name"},

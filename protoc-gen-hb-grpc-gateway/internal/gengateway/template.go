@@ -223,7 +223,7 @@ var (
 	{{range $b := $m.Bindings}}
 	route_{{$svc.GetName}}_{{$m.GetName}}_{{$b.Index}} = registry.Binding{
 		Method: {{$b.HTTPMethod | printf "%q"}}, 
-		PathTmpl: &httprule.Template{
+		PathTmpl: &registry.PathTmpl{
 			Version: {{$b.PathTmpl.Version}},
 			OpCodes: {{$b.PathTmpl.OpCodes | printf "%#v"}}, 
 			Pool: {{$b.PathTmpl.Pool | printf "%#v"}}, 

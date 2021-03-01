@@ -4,13 +4,15 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc/grpclog"
 )
 
 type Message struct {
 	data []byte
 }
+
+var _ runtime.Marshaler = &Message{}
 
 // proto.Message
 // "github.com/golang/protobuf/proto"
@@ -36,7 +38,7 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 }
 
 // gRPC gateway marshaler
-// "github.com/grpc-ecosystem/grpc-gateway/runtime"
+// "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 func (m *Message) Marshal(v interface{}) ([]byte, error) {
 	grpclog.Infof("message marshal data: %v", m.data)
 	return m.data, nil
@@ -75,7 +77,7 @@ func (m *Message) NewEncoder(w io.Writer) runtime.Encoder {
 	})
 }
 
-func (m *Message) ContentType() string {
+func (m *Message) ContentType(v interface{}) string {
 	return "application/json"
 }
 
