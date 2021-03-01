@@ -20,7 +20,7 @@ $ cd example/grpc
 $ go run main.go --grpc_registry=etcd
 ```
 
-**go-micro 的 gRPC 服务**
+**~~go-micro 的 gRPC 服务~~**
 ```shell script
 $ cd example/micro
 $ go run main.go --grpc_registry=etcd
@@ -35,8 +35,16 @@ gRPC 服务支持：
     - [github.com/hb-go/grpc-contrib/registry](https://github.com/hb-go/grpc-contrib/tree/master/registry)
 
 **测试接口**
-- http://localhost:8080/v1/example/call
-- http://localhost:8080/v1/example/call/hbchen
+
+```shell script
+# POST
+curl -X POST -d '{"name":"hbchen"}' http://localhost:8080/v1/example/call
+{"code":"0","msg":"Hello hbchen"}
+
+# GET
+curl http://localhost:8080/v1/example/call/hbchen
+{"code":"0","msg":"Hello hbchen"}
+```
     
 ## Proto 工具
 
