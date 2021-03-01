@@ -59,7 +59,7 @@ func main() {
 		},
 		&cli.StringFlag{
 			Name:  "version",
-			Value: "v1.0.0",
+			Value: "v2.3.0",
 			Usage: "gateway version",
 		},
 		&cli.StringFlag{
