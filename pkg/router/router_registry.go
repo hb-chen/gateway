@@ -19,11 +19,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 
-	"github.com/hb-chen/gateway/v2/codec"
-	"github.com/hb-chen/gateway/v2/proto"
+	"github.com/hb-chen/gateway/v2/pkg/codec"
+	"github.com/hb-chen/gateway/v2/pkg/proto"
 )
 
-var valuesKeyRegexp = regexp.MustCompile("^(.*)\\[(.*)\\]$")
+var valuesKeyRegexp = regexp.MustCompile(`^(.*)\[(.*)\]$`)
 
 type Route struct {
 	method         string
@@ -95,7 +95,17 @@ func (r *registryRouter) refresh() {
 
 // process watch event
 func (r *registryRouter) process(res *registry.Result) {
+	// skip these things
+	if res == nil || res.Service == nil {
+		return
+	}
+
 	grpclog.Infof("process action: %v, service: %v", res.Action, log.StringJSON(res.Service))
+
+	// namespace filter
+	if !strings.HasPrefix(res.Service.Name, r.opts.namespace) {
+		return
+	}
 
 	// skip these things
 	if res == nil || res.Service == nil || !strings.HasPrefix(res.Service.Name, r.opts.namespace) {
@@ -314,6 +324,10 @@ func (r *registryRouter) handler(serviceName, method string, versions []string) 
 		}
 
 		data, err := payload.MarshalJSON()
+		if err != nil {
+			runtime.HTTPError(context.TODO(), r.opts.mux.ServeMux, marshaler, w, req, err)
+			return
+		}
 
 		resp := &proto.Message{}
 		rpcReq := proto.NewMessage(data)

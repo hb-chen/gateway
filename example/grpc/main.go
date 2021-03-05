@@ -27,8 +27,8 @@ import (
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 
-	_ "github.com/hb-chen/gateway/v2/codec"
 	"github.com/hb-chen/gateway/v2/example/proto"
+	_ "github.com/hb-chen/gateway/v2/pkg/codec"
 	"github.com/hb-chen/gateway/v2/pkg/util"
 	mNet "github.com/hb-chen/gateway/v2/pkg/util/net"
 )
@@ -146,7 +146,11 @@ func main() {
 		<-c
 		grpclog.Infof("exit signal")
 
-		registry.Deregister(&service)
+		err := registry.Deregister(&service)
+		if err != nil {
+			grpclog.Errorf("service deregister failed: %v", err)
+		}
+
 		s.GracefulStop()
 
 		grpclog.Infof("exit")

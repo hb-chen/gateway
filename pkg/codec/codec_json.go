@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc/grpclog"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 var useNumber bool
@@ -23,8 +23,8 @@ func UseNumber() {
 	useNumber = true
 }
 
-var jsonpbMarshaler = &jsonpb.Marshaler{EmitDefaults: true}
-var jsonpbUnmarshaler = &jsonpb.Unmarshaler{AllowUnknownFields: true}
+var jsonpbMarshaler = &protojson.MarshalOptions{EmitUnpopulated: true}
+var jsonpbUnmarshaler = &protojson.UnmarshalOptions{AllowPartial: true}
 
 func (jsonCodec) Marshal(v interface{}) ([]byte, error) {
 	grpclog.Infof("codec marshal: %+v", v)
@@ -34,9 +34,9 @@ func (jsonCodec) Marshal(v interface{}) ([]byte, error) {
 
 	if pb, ok := v.(proto.Message); ok {
 		grpclog.Infof("codec marshal proto message")
-		s, err := jsonpbMarshaler.MarshalToString(pb)
+		s, err := jsonpbMarshaler.Marshal(pb)
 
-		return []byte(s), err
+		return s, err
 	}
 
 	grpclog.Infof("codec marshal json")
@@ -54,7 +54,8 @@ func (jsonCodec) Unmarshal(data []byte, v interface{}) error {
 
 	if pb, ok := v.(proto.Message); ok {
 		grpclog.Infof("codec unmarshal proto message")
-		err := jsonpbUnmarshaler.Unmarshal(bytes.NewReader(data), pb)
+
+		err := jsonpbUnmarshaler.Unmarshal(data, pb)
 		if err != nil {
 			grpclog.Error(err)
 		}

@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc/grpclog"
 
-	"github.com/hb-chen/gateway/v2/router"
+	"github.com/hb-chen/gateway/v2/pkg/router"
 )
 
 func init() {
@@ -95,7 +95,7 @@ func main() {
 			pat, _ := runtime.NewPattern(1, []int{1, 0}, []string{""}, "")
 			mux.Handle("GET", pat, func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(`{"name":"` + name + `","version": "` + version + `"}`))
+				_, _ = w.Write([]byte(`{"name":"` + name + `","version": "` + version + `"}`))
 			})
 
 			r := router.NewRouter(router.WithMux(mux), router.WithRegistry(registry.DefaultRegistry))
