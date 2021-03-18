@@ -1,5 +1,9 @@
 # Gateway
 
+<div align="center">
+<img src="docs/assets/images/arch.svg" />
+</div>
+
 ## Helm install
 
 ```
