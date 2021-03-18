@@ -14,11 +14,11 @@ test:
 
 .PHONY: run
 run:
-	go run cmd/main.go
+	go run cmd/main.go --grpc_registry=etcd --log_level=info --debug -e
 
 .PHONY: build
 build:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags '-w' -o ./bin/gateway cmd/main.go
+	CGO_ENABLED=0 GOARCH=amd64 go build -a -installsuffix cgo -ldflags '-w' -o ./bin/gateway cmd/main.go
 
 .PHONY: docker
 docker: build

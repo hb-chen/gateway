@@ -2,9 +2,7 @@ module github.com/hb-chen/gateway/v2
 
 go 1.15
 
-replace (
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.3.0 => github.com/hb-chen/grpc-gateway/v2 v2.3.0-dynamic
-)
+replace github.com/grpc-ecosystem/grpc-gateway/v2 v2.3.0 => github.com/hb-chen/grpc-gateway/v2 v2.3.0-dynamic
 
 require (
 	github.com/bitly/go-simplejson v0.5.0
@@ -19,4 +17,5 @@ require (
 	go.uber.org/zap v1.16.0
 	google.golang.org/grpc v1.36.0
 	google.golang.org/protobuf v1.25.1-0.20201208041424-160c7477e0e8
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )

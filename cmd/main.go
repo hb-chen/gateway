@@ -16,24 +16,75 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc/grpclog"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/hb-chen/gateway/v2/pkg/router"
 )
 
-func init() {
-	zapEncoderConf := zap.NewDevelopmentEncoderConfig()
-	zapEncoderConf.EncodeLevel = zapcore.CapitalColorLevelEncoder
-	zapConf := zap.NewDevelopmentConfig()
-	zapConf.EncoderConfig = zapEncoderConf
-	zapConf.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
-	logger, err := zapConf.Build(zap.AddCallerSkip(2))
+const (
+	logCallerSkip = 2
+)
+
+func initLogger(path, level string, debug, e bool) error {
+	logLevel := zapcore.WarnLevel
+	err := logLevel.UnmarshalText([]byte(level))
 	if err != nil {
-		grpclog.Fatal(err)
+		return err
 	}
+
+	writer := logWriter(path)
+	if e {
+		stderr, close, err := zap.Open("stderr")
+		if err != nil {
+			close()
+			return err
+		}
+		writer = stderr
+	}
+
+	encoder := logEncoder(debug)
+	core := zapcore.NewCore(encoder, writer, logLevel)
+	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(logCallerSkip))
 	grpcZap.ReplaceGrpcLoggerV2(logger)
+
+	return nil
 }
 
+func logEncoder(debug bool) zapcore.Encoder {
+	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+
+	if debug {
+		encoderConfig = zap.NewDevelopmentEncoderConfig()
+		encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+		encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
+	}
+
+	return zapcore.NewConsoleEncoder(encoderConfig)
+}
+
+func logWriter(path string) zapcore.WriteSyncer {
+	path = strings.TrimRight(path, "/")
+	lumberJackLogger := &lumberjack.Logger{
+		Filename:   path + "/gateway.log",
+		MaxSize:    10,
+		MaxBackups: 10,
+		MaxAge:     7,
+		Compress:   false,
+	}
+	return zapcore.AddSync(lumberJackLogger)
+}
 func setup(ctx *cli.Context) error {
+	// 日志
+	debug := ctx.Bool("debug")
+	e := ctx.Bool("e")
+	level := ctx.String("log_level")
+	path := ctx.String("log_path")
+	if err := initLogger(path, level, debug, e); err != nil {
+		return err
+	}
+
 	provider := ctx.String("grpc_registry")
 	addr := ctx.String("grpc_registry_address")
 	switch provider {
@@ -75,6 +126,24 @@ func main() {
 		&cli.StringFlag{
 			Name:  "grpc_registry_address",
 			Usage: "registry address",
+		},
+		&cli.BoolFlag{
+			Name:  "debug",
+			Usage: "log for debug.",
+		},
+		&cli.BoolFlag{
+			Name:  "e",
+			Usage: "log to stderr.",
+		},
+		&cli.StringFlag{
+			Name:  "log_level",
+			Usage: "log level, debug info warn or error",
+			Value: "warn",
+		},
+		&cli.StringFlag{
+			Name:  "log_path",
+			Usage: "log path.",
+			Value: "./log",
 		},
 	)
 
