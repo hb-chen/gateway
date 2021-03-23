@@ -4,6 +4,7 @@ GOPATH:=$(shell go env GOPATH)
 proto:
 	protoc --proto_path=.:$GOPATH/src \
     --go_out=plugins=grpc:. \
+    --grpc-gateway_out=logtostderr=true,grpc_api_configuration=example/proto/gateway.yaml:. \
     --hb-grpc-gateway_out=logtostderr=true,grpc_api_configuration=example/proto/gateway.yaml:. \
     --hb-grpc_out=plugins=desc+registry:. \
     example/proto/service.proto
