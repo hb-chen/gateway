@@ -13,6 +13,7 @@ import (
 	"io"
 	"net/http"
 
+	protoV1 "github.com/golang/protobuf/proto"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
 	"google.golang.org/grpc"
@@ -44,7 +45,7 @@ func request_Example_Call_0(ctx context.Context, marshaler runtime.Marshaler, cl
 	}
 
 	msg, err := client.Call(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
+	return protoV1.MessageV2(msg), metadata, err
 
 }
 
@@ -61,7 +62,7 @@ func local_request_Example_Call_0(ctx context.Context, marshaler runtime.Marshal
 	}
 
 	msg, err := server.Call(ctx, &protoReq)
-	return msg, metadata, err
+	return protoV1.MessageV2(msg), metadata, err
 
 }
 
@@ -87,7 +88,7 @@ func request_Example_Call_1(ctx context.Context, marshaler runtime.Marshaler, cl
 	}
 
 	msg, err := client.Call(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
+	return protoV1.MessageV2(msg), metadata, err
 
 }
 
@@ -113,7 +114,7 @@ func local_request_Example_Call_1(ctx context.Context, marshaler runtime.Marshal
 	}
 
 	msg, err := server.Call(ctx, &protoReq)
-	return msg, metadata, err
+	return protoV1.MessageV2(msg), metadata, err
 
 }
 
