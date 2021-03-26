@@ -3,7 +3,8 @@ GOPATH:=$(shell go env GOPATH)
 .PHONY: proto
 proto:
 	protoc --proto_path=.:$GOPATH/src \
-    --go_out=plugins=grpc:. \
+    --go_out=:. \
+    --go-grpc_out=:. \
     --grpc-gateway_out=logtostderr=true,grpc_api_configuration=example/proto/gateway.yaml:. \
     --hb-grpc-gateway_out=logtostderr=true,grpc_api_configuration=example/proto/gateway.yaml:. \
     --hb-grpc_out=plugins=desc+registry:. \

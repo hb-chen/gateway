@@ -47,6 +47,7 @@ func init() {
 }
 
 type exampleService struct {
+	proto.UnimplementedExampleServer
 }
 
 func (*exampleService) Call(_ context.Context, req *proto.Request) (*proto.Response, error) {
