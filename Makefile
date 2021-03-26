@@ -6,6 +6,7 @@ proto:
     --go_out=:. \
     --go-grpc_out=:. \
     --grpc-gateway_out=logtostderr=true,grpc_api_configuration=example/proto/gateway.yaml:. \
+    --openapiv2_out=grpc_api_configuration=example/proto/gateway.yaml:. \
     --hb-grpc-gateway_out=logtostderr=true,grpc_api_configuration=example/proto/gateway.yaml:. \
     --hb-grpc_out=plugins=desc+registry:. \
     example/proto/service.proto
