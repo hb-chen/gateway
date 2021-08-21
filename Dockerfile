@@ -1,6 +1,8 @@
 FROM alpine:3.10
 
-ADD bin/gateway /bin/gateway
+ADD bin/linux/gateway /opt/grpc-gateway/gateway
 
-WORKDIR /bin
-ENTRYPOINT [ "gateway" ]
+EXPOSE 8080
+WORKDIR /opt/grpc-gateway
+
+ENTRYPOINT [ "./gateway", "-e" ]

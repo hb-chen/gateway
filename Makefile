@@ -23,6 +23,10 @@ run:
 build:
 	CGO_ENABLED=0 GOARCH=amd64 go build -a -installsuffix cgo -ldflags '-w' -o ./bin/gateway cmd/main.go
 
+.PHONY: build_linux
+build_linux:
+	GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -a -installsuffix cgo -ldflags '-w' -o ./bin/linux/gateway cmd/main.go
+
 .PHONY: docker
-docker: build
+docker: build_linux
 	docker build . -t $(tag)
