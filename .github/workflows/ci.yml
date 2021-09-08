@@ -16,6 +16,10 @@ jobs:
       run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b . latest
     - name: Lint
       run: ./golangci-lint run ./...
+    - name: Run coverage
+      run: go test -race -coverprofile=coverage.txt -covermode=atomic
+    - name: Upload coverage to Codecov
+      run: bash <(curl -s https://codecov.io/bash)
 
   test:
     #needs: Lint
