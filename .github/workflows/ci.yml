@@ -1,5 +1,11 @@
 name: CI
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 jobs:
   lint:
     name: Lint
@@ -40,3 +46,9 @@ jobs:
       run: go get -v -t -d ./...
     - name: Go Test
       run: go test -race -cover -v ./...
+    - name: Run coverage
+      run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+      if: matrix.os == 'ubuntu-latest'
+    - name: Upload coverage to Codecov
+      run: bash <(curl -s https://codecov.io/bash)
+      if: matrix.os == 'ubuntu-latest'
