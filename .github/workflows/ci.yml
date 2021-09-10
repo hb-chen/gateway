@@ -1,11 +1,11 @@
 name: CI
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
+  #push:
+  #  branches:
+  #    - develop
 jobs:
   lint:
     name: Lint
