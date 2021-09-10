@@ -5,8 +5,7 @@ on:
       - master
       - develop
   pull_request:
-    branches:
-      - *
+    branches: "*"
 jobs:
   lint:
     name: Lint
